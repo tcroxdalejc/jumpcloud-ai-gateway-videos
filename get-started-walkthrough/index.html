@@ -3,20 +3,1135 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Editframe Project</title>
+    <title>JumpCloud AI Gateway Setup</title>
     <script type="module" src="./src/index.js"></script>
     <link rel="stylesheet" href="./src/styles.css" />
+    <style>
+      * { font-family: -apple-system, 'SF Pro Display', 'Inter', sans-serif; box-sizing: border-box; }
+
+      /* ─── Entrances ─── */
+      @keyframes enter-up {
+        from { transform: translateY(26px); opacity: 0; }
+        to   { transform: translateY(0);    opacity: 1; }
+      }
+      @keyframes enter-scale {
+        from { transform: scale(0.94) translateY(22px); opacity: 0; }
+        to   { transform: scale(1)    translateY(0);    opacity: 1; }
+      }
+      @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+      /* ─── Exits ─── */
+      @keyframes scene-exit {
+        from { transform: translateY(0);    opacity: 1; }
+        to   { transform: translateY(-14px); opacity: 0; }
+      }
+
+      /* ─── In-mockup effects ─── */
+      @keyframes cursor-blink  { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+      @keyframes highlight-row {
+        from { background: transparent; }
+        to   { background: rgba(26,118,255,0.12); }
+      }
+      @keyframes modal-up {
+        from { transform: translateY(32px); opacity: 0; }
+        to   { transform: translateY(0);    opacity: 1; }
+      }
+      @keyframes toggle-on {
+        from { transform: translateX(0); }
+        to   { transform: translateX(22px); }
+      }
+      @keyframes dot-pulse {
+        0%,100% { box-shadow: 0 0 0 0   rgba(26,118,255,0.5); }
+        50%      { box-shadow: 0 0 0 6px rgba(26,118,255,0); }
+      }
+      @keyframes btn-glow {
+        0%,100% { box-shadow: 0 0 0 0   rgba(26,118,255,0.6); }
+        50%      { box-shadow: 0 0 0 10px rgba(26,118,255,0); }
+      }
+      @keyframes connected-in {
+        from { transform: scale(0.85); opacity: 0; }
+        to   { transform: scale(1);    opacity: 1; }
+      }
+
+      /* ─── Shared mockup chrome ─── */
+      .browser {
+        position: absolute;
+        left: 800px; top: 145px;
+        width: 1048px; height: 780px;
+        border-radius: 14px;
+        background: #0A0E1A;
+        box-shadow:
+          0 0 0 1px rgba(255,255,255,0.07),
+          0 40px 120px rgba(0,0,0,0.85),
+          0 0 80px  rgba(26,118,255,0.07);
+        overflow: hidden;
+      }
+      .browser-bar {
+        height: 44px;
+        background: #111827;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+        display: flex; align-items: center; padding: 0 16px; gap: 8px;
+        flex-shrink: 0;
+      }
+      .tl { width: 12px; height: 12px; border-radius: 50%; }
+      .tl-r { background: #FF5F57; }
+      .tl-y { background: #FEBC2E; }
+      .tl-g { background: #28C840; }
+      .url-bar {
+        flex: 1; max-width: 340px; margin: 0 auto;
+        background: rgba(255,255,255,0.05); border-radius: 6px;
+        height: 26px; display: flex; align-items: center;
+        padding: 0 12px; color: #4B5563; font-size: 12px;
+        font-weight: 400;
+      }
+      .browser-body {
+        display: flex; height: calc(100% - 44px);
+      }
+
+      /* ─── Sidebar ─── */
+      .sidebar {
+        width: 224px; height: 100%;
+        background: #0D1117;
+        border-right: 1px solid rgba(255,255,255,0.05);
+        display: flex; flex-direction: column;
+        padding: 16px 10px;
+        flex-shrink: 0;
+      }
+      .sidebar-brand {
+        display: flex; align-items: center; gap: 8px;
+        padding: 6px 8px 18px;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        margin-bottom: 12px;
+      }
+      .sidebar-logo {
+        width: 26px; height: 26px; border-radius: 6px;
+        background: #1A76FF;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 11px; font-weight: 800; color: white;
+      }
+      .sidebar-name { font-size: 13px; font-weight: 700; color: #E2E8F0; }
+      .nav-section {
+        font-size: 10px; font-weight: 600; color: #374151;
+        letter-spacing: 0.1em; text-transform: uppercase;
+        padding: 4px 8px; margin-bottom: 4px; margin-top: 8px;
+      }
+      .nav-item {
+        display: flex; align-items: center; gap: 8px;
+        padding: 7px 8px; border-radius: 7px;
+        font-size: 13px; font-weight: 500; color: #6B7280;
+        cursor: pointer;
+      }
+      .nav-item.active {
+        background: rgba(26,118,255,0.14);
+        color: #60A5FA; font-weight: 600;
+      }
+      .nav-item.parent { color: #9CA3AF; }
+      .nav-item.child { padding-left: 26px; font-size: 12.5px; }
+      .nav-icon { width: 15px; text-align: center; font-size: 13px; }
+
+      /* ─── Main content ─── */
+      .content {
+        flex: 1; height: 100%;
+        background: #080C16;
+        overflow: hidden; position: relative;
+        padding: 28px 32px;
+      }
+      .page-title {
+        font-size: 21px; font-weight: 700; color: #F1F5F9;
+        margin-bottom: 6px;
+      }
+      .page-sub {
+        font-size: 13px; color: #4B5563; margin-bottom: 24px;
+      }
+      .card {
+        background: #0F1724;
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 10px;
+        padding: 20px 24px;
+        margin-bottom: 16px;
+      }
+      .card-title {
+        font-size: 13px; font-weight: 600; color: #94A3B8;
+        text-transform: uppercase; letter-spacing: 0.06em;
+        margin-bottom: 14px;
+      }
+
+      /* ─── Form elements (used inside mockups) ─── */
+      .field-wrap { margin-bottom: 16px; }
+      .field-label {
+        font-size: 11.5px; font-weight: 500; color: #6B7280;
+        display: block; margin-bottom: 5px;
+      }
+      .field {
+        background: #111827;
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 7px; padding: 9px 13px;
+        font-size: 13.5px; color: #E2E8F0;
+        display: flex; align-items: center; gap: 4px;
+        width: 100%;
+      }
+      .field-active {
+        border-color: rgba(26,118,255,0.5);
+        box-shadow: 0 0 0 2px rgba(26,118,255,0.12);
+      }
+      .btn-primary {
+        background: #1A76FF; color: white;
+        border-radius: 8px; padding: 10px 20px;
+        font-size: 13.5px; font-weight: 600;
+        display: inline-flex; align-items: center; gap: 6px;
+        cursor: pointer;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+      }
+      .btn-secondary {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: #9CA3AF; border-radius: 8px; padding: 10px 20px;
+        font-size: 13.5px; font-weight: 500;
+        display: inline-flex; align-items: center; gap: 6px;
+      }
+
+      /* ─── Toggle switch ─── */
+      .toggle-track {
+        width: 38px; height: 20px; border-radius: 10px;
+        background: #1A76FF;
+        position: relative; flex-shrink: 0;
+      }
+      .toggle-thumb {
+        width: 16px; height: 16px; border-radius: 50%;
+        background: white;
+        position: absolute; top: 2px; left: 2px;
+      }
+      .toggle-off .toggle-track { background: #374151; }
+      .toggle-off .toggle-thumb { left: 20px; }
+    </style>
   </head>
-  <body class="h-full w-full m-0 p-0 bg-slate-900">
+  <body class="h-full w-full m-0 p-0">
+    <!--
+      Total: 3.5s + 5s×5 + 3s − 0.7s×6 = 27.3s
+      Material: Glass (400ms base, no deformation, no bounce)
+      Entrance easing: cubic-bezier(0.22, 1, 0.36, 1)  ← ease-out-quint
+      Exit easing:     cubic-bezier(0.55, 0, 1, 0.45)  ← ease-in-quint
+      Overlap: 0.7s   (adjacent scenes share 0.7s for dissolve)
+    -->
     <ef-timegroup
       workbench
       mode="sequence"
-      class="w-[1920px] h-[1080px] bg-black relative overflow-hidden"
+      overlap="0.7s"
+      class="w-[1920px] h-[1080px] relative overflow-hidden"
+      style="background: #07090F;"
     >
-      <!-- Add your composition here -->
-      <ef-timegroup mode="fixed" duration="5s" class="absolute w-full h-full flex items-center justify-center">
-        <ef-text duration="5s" class="text-white text-4xl">Your video starts here</ef-text>
+
+      <!-- ╔══════════════════════════════════════════════════╗
+           ║  SCENE 0 — Title Card  (3.5s)                  ║
+           ╚══════════════════════════════════════════════════╝ -->
+      <ef-timegroup mode="fixed" duration="3.5s" class="absolute w-full h-full"
+        style="animation: 0.5s scene-exit cubic-bezier(0.55,0,1,0.45) var(--ef-transition-out-start) both;">
+
+        <!-- Radial glow -->
+        <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+          width:900px; height:700px; pointer-events:none;
+          background:radial-gradient(ellipse at center, rgba(26,118,255,0.1) 0%, transparent 65%);
+          animation:1.2s fade-in ease-out both;"></div>
+
+        <!-- Subtle grid -->
+        <div style="position:absolute; inset:0; pointer-events:none;
+          background-image: linear-gradient(rgba(26,118,255,0.05) 1px, transparent 1px),
+                            linear-gradient(90deg, rgba(26,118,255,0.05) 1px, transparent 1px);
+          background-size:120px 120px;
+          animation:1s fade-in 0.2s both;"></div>
+
+        <!-- Content -->
+        <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-52%);
+          display:flex; flex-direction:column; align-items:center; gap:22px;">
+
+          <!-- Shield -->
+          <div style="width:88px; height:88px; border-radius:22px;
+            background:linear-gradient(145deg,#1A76FF,#0D5BCC);
+            display:flex; align-items:center; justify-content:center;
+            box-shadow:0 0 60px 18px rgba(26,118,255,0.4);
+            animation:0.65s enter-scale cubic-bezier(0.22,1,0.36,1) 0.15s both;">
+            <svg viewBox="0 0 48 48" width="50" height="50" fill="none">
+              <path d="M24 5L7 13v11c0 10.5 7.3 19.5 17 22 9.7-2.5 17-11.5 17-22V13L24 5z"
+                fill="rgba(255,255,255,0.12)" stroke="white" stroke-width="2.5"/>
+              <path d="M17 24l5 5 9-10" stroke="white" stroke-width="3"
+                stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+
+          <!-- "JumpCloud" -->
+          <ef-text style="font-size:84px; font-weight:800; color:#F8FAFC;
+            letter-spacing:-3px; line-height:1;
+            animation:0.55s enter-up cubic-bezier(0.22,1,0.36,1) 0.45s both;">JumpCloud</ef-text>
+
+          <!-- "AI Gateway" bar -->
+          <div style="display:flex; align-items:center; gap:18px;
+            animation:0.55s enter-up cubic-bezier(0.22,1,0.36,1) 0.65s both;">
+            <div style="width:56px; height:2px; background:linear-gradient(90deg,transparent,#1A76FF);"></div>
+            <ef-text style="font-size:28px; font-weight:700; color:#1A76FF;
+              letter-spacing:0.22em;">AI GATEWAY</ef-text>
+            <div style="width:56px; height:2px; background:linear-gradient(90deg,#1A76FF,transparent);"></div>
+          </div>
+
+          <!-- Tagline -->
+          <ef-text style="font-size:20px; color:#4B5563;
+            animation:0.55s enter-up cubic-bezier(0.22,1,0.36,1) 0.82s both;">
+            Setup Guide
+          </ef-text>
+        </div>
+
+        <!-- Step progress dots -->
+        <div style="position:absolute; bottom:72px; left:50%; transform:translateX(-50%);
+          display:flex; gap:8px; animation:0.5s fade-in 1.1s both;">
+          <div style="width:24px;height:3px;border-radius:2px;background:#1A76FF;"></div>
+          <div style="width:8px;height:3px;border-radius:2px;background:rgba(255,255,255,0.1);"></div>
+          <div style="width:8px;height:3px;border-radius:2px;background:rgba(255,255,255,0.1);"></div>
+          <div style="width:8px;height:3px;border-radius:2px;background:rgba(255,255,255,0.1);"></div>
+          <div style="width:8px;height:3px;border-radius:2px;background:rgba(255,255,255,0.1);"></div>
+        </div>
       </ef-timegroup>
+
+      <!-- ╔══════════════════════════════════════════════════╗
+           ║  SCENE 1 — Admin Portal Login  (5s)            ║
+           ╚══════════════════════════════════════════════════╝ -->
+      <ef-timegroup mode="fixed" duration="5s" class="absolute w-full h-full"
+        style="animation:0.5s scene-exit cubic-bezier(0.55,0,1,0.45) var(--ef-transition-out-start) both;">
+
+        <!-- Background accent -->
+        <div style="position:absolute; right:600px; top:150px; width:700px; height:700px; pointer-events:none;
+          background:radial-gradient(ellipse, rgba(26,118,255,0.05) 0%, transparent 65%);
+          animation:0.8s fade-in 0.2s both;"></div>
+
+        <!-- Left panel -->
+        <!-- Decorative number -->
+        <div style="position:absolute; left:52px; top:240px;
+          font-size:280px; font-weight:900; color:rgba(26,118,255,0.05);
+          line-height:1; user-select:none; pointer-events:none;
+          animation:0.8s fade-in 0.1s both;">01</div>
+
+        <!-- Step pill -->
+        <div style="position:absolute; left:82px; top:362px;
+          display:inline-flex; align-items:center; gap:8px;
+          animation:0.5s enter-up cubic-bezier(0.22,1,0.36,1) 0.3s both;">
+          <div style="width:26px;height:26px;border-radius:50%;background:#1A76FF;
+            display:flex;align-items:center;justify-content:center;
+            font-size:12px;font-weight:700;color:white;">1</div>
+          <span style="font-size:12px;font-weight:600;color:#475569;
+            letter-spacing:0.15em;text-transform:uppercase;">Step 01 of 05</span>
+        </div>
+
+        <!-- Title -->
+        <div style="position:absolute; left:82px; top:406px; max-width:600px;
+          font-size:56px; font-weight:800; color:#F8FAFC;
+          letter-spacing:-1.5px; line-height:1.08;
+          animation:0.6s enter-up cubic-bezier(0.22,1,0.36,1) 0.46s both;">
+          Admin Portal<br>Login
+        </div>
+
+        <!-- Description -->
+        <div style="position:absolute; left:82px; top:570px; max-width:560px;
+          font-size:19px; font-weight:400; color:#6B7280; line-height:1.65;
+          animation:0.6s enter-up cubic-bezier(0.22,1,0.36,1) 0.6s both;">
+          Authenticate with your JumpCloud<br>admin credentials.
+        </div>
+
+        <!-- Step progress -->
+        <div style="position:absolute; left:82px; bottom:72px;
+          display:flex; gap:8px; animation:0.5s fade-in 0.7s both;">
+          <div style="width:24px;height:3px;border-radius:2px;background:#1A76FF;animation:dot-pulse 2s ease-in-out infinite;"></div>
+          <div style="width:8px;height:3px;border-radius:2px;background:rgba(255,255,255,0.1);"></div>
+          <div style="width:8px;height:3px;border-radius:2px;background:rgba(255,255,255,0.1);"></div>
+          <div style="width:8px;height:3px;border-radius:2px;background:rgba(255,255,255,0.1);"></div>
+          <div style="width:8px;height:3px;border-radius:2px;background:rgba(255,255,255,0.1);"></div>
+        </div>
+
+        <!-- Browser mockup -->
+        <div class="browser" style="animation:0.72s enter-scale cubic-bezier(0.22,1,0.36,1) 0.12s both;">
+          <!-- Screen glare -->
+          <div style="position:absolute;top:0;left:0;right:0;height:80px;pointer-events:none;z-index:10;
+            background:linear-gradient(180deg,rgba(255,255,255,0.025) 0%,transparent 100%);
+            border-radius:14px 14px 0 0;"></div>
+
+          <div class="browser-bar">
+            <div class="tl tl-r"></div><div class="tl tl-y"></div><div class="tl tl-g"></div>
+            <div class="url-bar">console.jumpcloud.com</div>
+          </div>
+
+          <!-- Login form (centered, no sidebar) -->
+          <div style="height:736px; background:#080C16;
+            display:flex; align-items:center; justify-content:center;">
+            <div style="width:400px;">
+
+              <!-- Brand -->
+              <div style="margin-bottom:36px;
+                animation:0.5s enter-up cubic-bezier(0.22,1,0.36,1) 0.85s both;">
+                <div style="width:44px;height:44px;border-radius:11px;background:#1A76FF;
+                  display:flex;align-items:center;justify-content:center;
+                  margin-bottom:20px; box-shadow:0 0 20px rgba(26,118,255,0.4);">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+                    <path d="M12 2L4 6v6c0 5.25 3.5 10 8 11 4.5-1 8-5.75 8-11V6L12 2z"
+                      fill="rgba(255,255,255,0.15)" stroke="white" stroke-width="1.5"/>
+                    <path d="M9 12l2.5 2.5L15 10" stroke="white" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div style="font-size:22px;font-weight:700;color:#F1F5F9;margin-bottom:6px;">Welcome back</div>
+                <div style="font-size:14px;color:#4B5563;">Sign in to your JumpCloud account</div>
+              </div>
+
+              <!-- Email field -->
+              <div class="field-wrap"
+                style="animation:0.45s enter-up cubic-bezier(0.22,1,0.36,1) 1.05s both;">
+                <label class="field-label">Work email</label>
+                <div class="field field-active">
+                  <span>admin@acme.com</span>
+                  <span style="color:#1A76FF;animation:cursor-blink 1s infinite;margin-left:1px;">|</span>
+                </div>
+              </div>
+
+              <!-- Password field -->
+              <div class="field-wrap"
+                style="animation:0.45s enter-up cubic-bezier(0.22,1,0.36,1) 1.22s both;">
+                <label class="field-label">Password</label>
+                <div class="field">
+                  <span style="letter-spacing:3px;font-size:16px;color:#94A3B8;">••••••••••••</span>
+                </div>
+              </div>
+
+              <!-- Sign In button -->
+              <div style="animation:0.48s enter-scale cubic-bezier(0.22,1,0.36,1) 1.5s both;">
+                <div class="btn-primary" style="width:100%; justify-content:center;
+                  box-shadow:0 0 0 0 rgba(26,118,255,0.5); animation:btn-glow 1.8s ease-in-out 2.2s infinite;">
+                  <span>Continue</span>
+                  <svg viewBox="0 0 16 16" width="14" height="14" fill="none">
+                    <path d="M3 8h10M9 4l4 4-4 4" stroke="white" stroke-width="1.5"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+
+              <div style="text-align:center;margin-top:16px;font-size:12.5px;color:#374151;
+                animation:0.4s fade-in 1.8s both;">
+                Forgot password? &nbsp;·&nbsp; Create account
+              </div>
+            </div>
+          </div>
+        </div>
+      </ef-timegroup>
+
+      <!-- ╔══════════════════════════════════════════════════╗
+           ║  SCENE 2 — Navigate to AI Gateway  (5s)        ║
+           ╚══════════════════════════════════════════════════╝ -->
+      <ef-timegroup mode="fixed" duration="5s" class="absolute w-full h-full"
+        style="animation:0.5s scene-exit cubic-bezier(0.55,0,1,0.45) var(--ef-transition-out-start) both;">
+
+        <div style="position:absolute; right:600px; top:150px; width:700px; height:700px; pointer-events:none;
+          background:radial-gradient(ellipse, rgba(26,118,255,0.05) 0%, transparent 65%);
+          animation:0.8s fade-in 0.2s both;"></div>
+
+        <div style="position:absolute; left:52px; top:240px;
+          font-size:280px; font-weight:900; color:rgba(26,118,255,0.05);
+          line-height:1; user-select:none; pointer-events:none;
+          animation:0.8s fade-in 0.1s both;">02</div>
+
+        <div style="position:absolute; left:82px; top:362px;
+          display:inline-flex; align-items:center; gap:8px;
+          animation:0.5s enter-up cubic-bezier(0.22,1,0.36,1) 0.3s both;">
+          <div style="width:26px;height:26px;border-radius:50%;background:#1A76FF;
+            display:flex;align-items:center;justify-content:center;
+            font-size:12px;font-weight:700;color:white;">2</div>
+          <span style="font-size:12px;font-weight:600;color:#475569;
+            letter-spacing:0.15em;text-transform:uppercase;">Step 02 of 05</span>
+        </div>
+
+        <div style="position:absolute; left:82px; top:406px; max-width:600px;
+          font-size:56px; font-weight:800; color:#F8FAFC;
+          letter-spacing:-1.5px; line-height:1.08;
+          animation:0.6s enter-up cubic-bezier(0.22,1,0.36,1) 0.46s both;">
+          Access &gt;<br>AI Gateway
+        </div>
+
+        <div style="position:absolute; left:82px; top:570px; max-width:560px;
+          font-size:19px; font-weight:400; color:#6B7280; line-height:1.65;
+          animation:0.6s enter-up cubic-bezier(0.22,1,0.36,1) 0.6s both;">
+          Navigate to Access → AI Gateway<br>in the admin console.
+        </div>
+
+        <div style="position:absolute; left:82px; bottom:72px;
+          display:flex; gap:8px; animation:0.5s fade-in 0.7s both;">
+          <div style="width:8px;height:3px;border-radius:2px;background:rgba(26,118,255,0.5);"></div>
+          <div style="width:24px;height:3px;border-radius:2px;background:#1A76FF;animation:dot-pulse 2s ease-in-out infinite;"></div>
+          <div style="width:8px;height:3px;border-radius:2px;background:rgba(255,255,255,0.1);"></div>
+          <div style="width:8px;height:3px;border-radius:2px;background:rgba(255,255,255,0.1);"></div>
+          <div style="width:8px;height:3px;border-radius:2px;background:rgba(255,255,255,0.1);"></div>
+        </div>
+
+        <!-- Browser mockup -->
+        <div class="browser" style="animation:0.72s enter-scale cubic-bezier(0.22,1,0.36,1) 0.12s both;">
+          <div style="position:absolute;top:0;left:0;right:0;height:80px;pointer-events:none;z-index:10;
+            background:linear-gradient(180deg,rgba(255,255,255,0.025) 0%,transparent 100%);
+            border-radius:14px 14px 0 0;"></div>
+
+          <div class="browser-bar">
+            <div class="tl tl-r"></div><div class="tl tl-y"></div><div class="tl tl-g"></div>
+            <div class="url-bar">console.jumpcloud.com/ai-gateway</div>
+          </div>
+
+          <div class="browser-body">
+            <!-- Sidebar nav — items stagger in -->
+            <div class="sidebar">
+              <div class="sidebar-brand">
+                <div class="sidebar-logo">JC</div>
+                <span class="sidebar-name">Acme Corp</span>
+              </div>
+
+              <div style="animation:0.4s fade-in 0.8s both;">
+                <div class="nav-item" style="animation:0.35s enter-up cubic-bezier(0.22,1,0.36,1) 0.80s both;">
+                  <span class="nav-icon">⊞</span> Dashboard
+                </div>
+                <div class="nav-item" style="animation:0.35s enter-up cubic-bezier(0.22,1,0.36,1) 0.88s both;">
+                  <span class="nav-icon">◎</span> Users
+                </div>
+                <div class="nav-item" style="animation:0.35s enter-up cubic-bezier(0.22,1,0.36,1) 0.96s both;">
+                  <span class="nav-icon">≡</span> Directory
+                </div>
+
+                <div class="nav-section" style="animation:0.35s fade-in 1.04s both;">Access</div>
+
+                <div class="nav-item child" style="animation:0.35s enter-up cubic-bezier(0.22,1,0.36,1) 1.12s both;">
+                  SSO Applications
+                </div>
+                <div class="nav-item child" style="animation:0.35s enter-up cubic-bezier(0.22,1,0.36,1) 1.20s both;">
+                  MFA Policies
+                </div>
+                <!-- AI Gateway — highlighted after items appear -->
+                <div class="nav-item child active"
+                  style="animation:0.35s enter-up cubic-bezier(0.22,1,0.36,1) 1.28s both,
+                                  0.4s highlight-row ease-out 2.0s both;">
+                  AI Gateway
+                </div>
+
+                <div class="nav-section" style="animation:0.35s fade-in 1.36s both;">Device Mgmt</div>
+                <div class="nav-item" style="animation:0.35s enter-up cubic-bezier(0.22,1,0.36,1) 1.44s both;">
+                  <span class="nav-icon">◻</span> Systems
+                </div>
+                <div class="nav-item" style="animation:0.35s enter-up cubic-bezier(0.22,1,0.36,1) 1.52s both;">
+                  <span class="nav-icon">⚙</span> Settings
+                </div>
+              </div>
+            </div>
+
+            <!-- Page content -->
+            <div class="content">
+              <div style="animation:0.5s enter-up cubic-bezier(0.22,1,0.36,1) 1.6s both;">
+                <div style="font-size:11px;font-weight:500;color:#374151;
+                  letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">
+                  Access
+                </div>
+                <div class="page-title">AI Gateway</div>
+                <div class="page-sub">Manage MCP server connections and AI client access policies.</div>
+              </div>
+
+              <!-- Empty state card -->
+              <div class="card" style="animation:0.5s enter-up cubic-bezier(0.22,1,0.36,1) 1.9s both;">
+                <div class="card-title">MCP Servers</div>
+                <div style="text-align:center; padding:40px 0;">
+                  <div style="width:48px;height:48px;border-radius:12px;
+                    background:rgba(26,118,255,0.1); border:1px dashed rgba(26,118,255,0.3);
+                    display:flex;align-items:center;justify-content:center;
+                    margin:0 auto 14px;">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+                      <path d="M12 5v14M5 12h14" stroke="#1A76FF" stroke-width="2"
+                        stroke-linecap="round"/>
+                    </svg>
+                  </div>
+                  <div style="font-size:14px;font-weight:600;color:#6B7280;margin-bottom:6px;">
+                    No servers configured yet
+                  </div>
+                  <div style="font-size:12.5px;color:#374151;margin-bottom:20px;">
+                    Add your first MCP server to get started.
+                  </div>
+                  <div class="btn-primary" style="
+                    display:inline-flex;margin:0 auto;
+                    animation:btn-glow 1.8s ease-in-out 2.8s infinite;">
+                    <svg viewBox="0 0 16 16" width="13" height="13" fill="none">
+                      <path d="M8 3v10M3 8h10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Add MCP Server
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ef-timegroup>
+
+      <!-- ╔══════════════════════════════════════════════════╗
+           ║  SCENE 3 — Add MCP Server  (5s)                ║
+           ╚══════════════════════════════════════════════════╝ -->
+      <ef-timegroup mode="fixed" duration="5s" class="absolute w-full h-full"
+        style="animation:0.5s scene-exit cubic-bezier(0.55,0,1,0.45) var(--ef-transition-out-start) both;">
+
+        <div style="position:absolute; right:600px; top:150px; width:700px; height:700px; pointer-events:none;
+          background:radial-gradient(ellipse, rgba(26,118,255,0.05) 0%, transparent 65%);
+          animation:0.8s fade-in 0.2s both;"></div>
+
+        <div style="position:absolute; left:52px; top:240px;
+          font-size:280px; font-weight:900; color:rgba(26,118,255,0.05);
+          line-height:1; user-select:none; pointer-events:none;
+          animation:0.8s fade-in 0.1s both;">03</div>
+
+        <div style="position:absolute; left:82px; top:362px;
+          display:inline-flex; align-items:center; gap:8px;
+          animation:0.5s enter-up cubic-bezier(0.22,1,0.36,1) 0.3s both;">
+          <div style="width:26px;height:26px;border-radius:50%;background:#1A76FF;
+            display:flex;align-items:center;justify-content:center;
+            font-size:12px;font-weight:700;color:white;">3</div>
+          <span style="font-size:12px;font-weight:600;color:#475569;
+            letter-spacing:0.15em;text-transform:uppercase;">Step 03 of 05</span>
+        </div>
+
+        <div style="position:absolute; left:82px; top:406px; max-width:600px;
+          font-size:56px; font-weight:800; color:#F8FAFC;
+          letter-spacing:-1.5px; line-height:1.08;
+          animation:0.6s enter-up cubic-bezier(0.22,1,0.36,1) 0.46s both;">
+          Add MCP<br>Server
+        </div>
+
+        <div style="position:absolute; left:82px; top:570px; max-width:560px;
+          font-size:19px; font-weight:400; color:#6B7280; line-height:1.65;
+          animation:0.6s enter-up cubic-bezier(0.22,1,0.36,1) 0.6s both;">
+          Register your first MCP server endpoint<br>with a name and URL.
+        </div>
+
+        <div style="position:absolute; left:82px; bottom:72px;
+          display:flex; gap:8px; animation:0.5s fade-in 0.7s both;">
+          <div style="width:8px;height:3px;border-radius:2px;background:rgba(26,118,255,0.5);"></div>
+          <div style="width:8px;height:3px;border-radius:2px;background:rgba(26,118,255,0.5);"></div>
+          <div style="width:24px;height:3px;border-radius:2px;background:#1A76FF;animation:dot-pulse 2s ease-in-out infinite;"></div>
+          <div style="width:8px;height:3px;border-radius:2px;background:rgba(255,255,255,0.1);"></div>
+          <div style="width:8px;height:3px;border-radius:2px;background:rgba(255,255,255,0.1);"></div>
+        </div>
+
+        <!-- Browser -->
+        <div class="browser" style="animation:0.72s enter-scale cubic-bezier(0.22,1,0.36,1) 0.12s both;">
+          <div style="position:absolute;top:0;left:0;right:0;height:80px;pointer-events:none;z-index:10;
+            background:linear-gradient(180deg,rgba(255,255,255,0.025) 0%,transparent 100%);
+            border-radius:14px 14px 0 0;"></div>
+
+          <div class="browser-bar">
+            <div class="tl tl-r"></div><div class="tl tl-y"></div><div class="tl tl-g"></div>
+            <div class="url-bar">console.jumpcloud.com/ai-gateway</div>
+          </div>
+
+          <div class="browser-body">
+            <div class="sidebar">
+              <div class="sidebar-brand">
+                <div class="sidebar-logo">JC</div>
+                <span class="sidebar-name">Acme Corp</span>
+              </div>
+              <div class="nav-item"><span class="nav-icon">⊞</span> Dashboard</div>
+              <div class="nav-item"><span class="nav-icon">◎</span> Users</div>
+              <div class="nav-section">Access</div>
+              <div class="nav-item child">SSO Applications</div>
+              <div class="nav-item child">MFA Policies</div>
+              <div class="nav-item child active">AI Gateway</div>
+              <div class="nav-section">Device Mgmt</div>
+              <div class="nav-item"><span class="nav-icon">◻</span> Systems</div>
+              <div class="nav-item"><span class="nav-icon">⚙</span> Settings</div>
+            </div>
+
+            <div class="content" style="position:relative;">
+              <div class="page-title">AI Gateway</div>
+              <div class="page-sub">MCP Servers &nbsp;›&nbsp; Add Server</div>
+
+              <div class="card" style="opacity:0.35;">
+                <div class="card-title">MCP Servers</div>
+                <div style="height:40px;"></div>
+              </div>
+
+              <!-- Modal overlay — slides up -->
+              <div style="position:absolute; inset:0;
+                background:rgba(7,9,15,0.7);
+                display:flex; align-items:center; justify-content:center;
+                animation:0.4s fade-in 1.4s both;">
+
+                <div style="width:460px; background:#0D1421;
+                  border:1px solid rgba(255,255,255,0.1);
+                  border-radius:14px;
+                  box-shadow:0 24px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.06);
+                  overflow:hidden;
+                  animation:0.52s modal-up cubic-bezier(0.22,1,0.36,1) 1.5s both;">
+
+                  <!-- Modal header -->
+                  <div style="padding:20px 24px 16px;
+                    border-bottom:1px solid rgba(255,255,255,0.06);
+                    display:flex;align-items:center;justify-content:space-between;">
+                    <div>
+                      <div style="font-size:16px;font-weight:700;color:#F1F5F9;">Add MCP Server</div>
+                      <div style="font-size:12px;color:#4B5563;margin-top:3px;">Connect a new server endpoint</div>
+                    </div>
+                    <div style="width:28px;height:28px;border-radius:7px;
+                      background:rgba(255,255,255,0.05);
+                      display:flex;align-items:center;justify-content:center;
+                      color:#4B5563;font-size:16px;cursor:pointer;">×</div>
+                  </div>
+
+                  <!-- Modal body -->
+                  <div style="padding:20px 24px;">
+                    <div class="field-wrap"
+                      style="animation:0.4s enter-up cubic-bezier(0.22,1,0.36,1) 1.9s both;">
+                      <label class="field-label">Server Name</label>
+                      <div class="field field-active">
+                        <span>Jira MCP Server</span>
+                        <span style="color:#1A76FF;animation:cursor-blink 1s infinite;margin-left:1px;">|</span>
+                      </div>
+                    </div>
+
+                    <div class="field-wrap"
+                      style="animation:0.4s enter-up cubic-bezier(0.22,1,0.36,1) 2.05s both;">
+                      <label class="field-label">Server URL</label>
+                      <div class="field">
+                        <span>https://mcp.acme.internal/jira</span>
+                      </div>
+                    </div>
+
+                    <div class="field-wrap"
+                      style="animation:0.4s enter-up cubic-bezier(0.22,1,0.36,1) 2.2s both;">
+                      <label class="field-label">Server Type</label>
+                      <div class="field" style="justify-content:space-between;">
+                        <span>Streamable HTTP</span>
+                        <svg viewBox="0 0 16 16" width="14" height="14" fill="none">
+                          <path d="M4 6l4 4 4-4" stroke="#6B7280" stroke-width="1.5"
+                            stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </div>
+                    </div>
+
+                    <div style="display:flex;gap:10px;margin-top:24px;
+                      animation:0.4s enter-up cubic-bezier(0.22,1,0.36,1) 2.4s both;">
+                      <div class="btn-secondary">Cancel</div>
+                      <div class="btn-primary" style="flex:1;justify-content:center;
+                        animation:btn-glow 1.8s ease-in-out 3.0s infinite;">
+                        Add Server
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ef-timegroup>
+
+      <!-- ╔══════════════════════════════════════════════════╗
+           ║  SCENE 4 — Configure Auth  (5s)                ║
+           ╚══════════════════════════════════════════════════╝ -->
+      <ef-timegroup mode="fixed" duration="5s" class="absolute w-full h-full"
+        style="animation:0.5s scene-exit cubic-bezier(0.55,0,1,0.45) var(--ef-transition-out-start) both;">
+
+        <div style="position:absolute; right:600px; top:150px; width:700px; height:700px; pointer-events:none;
+          background:radial-gradient(ellipse, rgba(26,118,255,0.05) 0%, transparent 65%);
+          animation:0.8s fade-in 0.2s both;"></div>
+
+        <div style="position:absolute; left:52px; top:240px;
+          font-size:280px; font-weight:900; color:rgba(26,118,255,0.05);
+          line-height:1; user-select:none; pointer-events:none;
+          animation:0.8s fade-in 0.1s both;">04</div>
+
+        <div style="position:absolute; left:82px; top:362px;
+          display:inline-flex; align-items:center; gap:8px;
+          animation:0.5s enter-up cubic-bezier(0.22,1,0.36,1) 0.3s both;">
+          <div style="width:26px;height:26px;border-radius:50%;background:#1A76FF;
+            display:flex;align-items:center;justify-content:center;
+            font-size:12px;font-weight:700;color:white;">4</div>
+          <span style="font-size:12px;font-weight:600;color:#475569;
+            letter-spacing:0.15em;text-transform:uppercase;">Step 04 of 05</span>
+        </div>
+
+        <div style="position:absolute; left:82px; top:406px; max-width:600px;
+          font-size:56px; font-weight:800; color:#F8FAFC;
+          letter-spacing:-1.5px; line-height:1.08;
+          animation:0.6s enter-up cubic-bezier(0.22,1,0.36,1) 0.46s both;">
+          Configure<br>Auth
+        </div>
+
+        <div style="position:absolute; left:82px; top:570px; max-width:560px;
+          font-size:19px; font-weight:400; color:#6B7280; line-height:1.65;
+          animation:0.6s enter-up cubic-bezier(0.22,1,0.36,1) 0.6s both;">
+          Set OAuth 2.0 authentication and define<br>who can access this server.
+        </div>
+
+        <div style="position:absolute; left:82px; bottom:72px;
+          display:flex; gap:8px; animation:0.5s fade-in 0.7s both;">
+          <div style="width:8px;height:3px;border-radius:2px;background:rgba(26,118,255,0.5);"></div>
+          <div style="width:8px;height:3px;border-radius:2px;background:rgba(26,118,255,0.5);"></div>
+          <div style="width:8px;height:3px;border-radius:2px;background:rgba(26,118,255,0.5);"></div>
+          <div style="width:24px;height:3px;border-radius:2px;background:#1A76FF;animation:dot-pulse 2s ease-in-out infinite;"></div>
+          <div style="width:8px;height:3px;border-radius:2px;background:rgba(255,255,255,0.1);"></div>
+        </div>
+
+        <!-- Browser -->
+        <div class="browser" style="animation:0.72s enter-scale cubic-bezier(0.22,1,0.36,1) 0.12s both;">
+          <div style="position:absolute;top:0;left:0;right:0;height:80px;pointer-events:none;z-index:10;
+            background:linear-gradient(180deg,rgba(255,255,255,0.025) 0%,transparent 100%);
+            border-radius:14px 14px 0 0;"></div>
+
+          <div class="browser-bar">
+            <div class="tl tl-r"></div><div class="tl tl-y"></div><div class="tl tl-g"></div>
+            <div class="url-bar">console.jumpcloud.com/ai-gateway/jira-mcp</div>
+          </div>
+
+          <div class="browser-body">
+            <div class="sidebar">
+              <div class="sidebar-brand">
+                <div class="sidebar-logo">JC</div>
+                <span class="sidebar-name">Acme Corp</span>
+              </div>
+              <div class="nav-item"><span class="nav-icon">⊞</span> Dashboard</div>
+              <div class="nav-item"><span class="nav-icon">◎</span> Users</div>
+              <div class="nav-section">Access</div>
+              <div class="nav-item child">SSO Applications</div>
+              <div class="nav-item child">MFA Policies</div>
+              <div class="nav-item child active">AI Gateway</div>
+              <div class="nav-section">Device Mgmt</div>
+              <div class="nav-item"><span class="nav-icon">◻</span> Systems</div>
+            </div>
+
+            <div class="content">
+              <!-- Breadcrumb + title -->
+              <div style="animation:0.5s enter-up cubic-bezier(0.22,1,0.36,1) 0.7s both;">
+                <div style="font-size:11px;color:#374151;margin-bottom:8px;">
+                  AI Gateway &nbsp;›&nbsp; Jira MCP Server
+                </div>
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+                  <div style="width:36px;height:36px;border-radius:9px;
+                    background:rgba(26,118,255,0.12);border:1px solid rgba(26,118,255,0.2);
+                    display:flex;align-items:center;justify-content:center;">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
+                      <rect x="3" y="4" width="18" height="6" rx="2"
+                        fill="rgba(26,118,255,0.2)" stroke="#1A76FF" stroke-width="1.5"/>
+                      <rect x="3" y="14" width="18" height="6" rx="2"
+                        fill="rgba(26,118,255,0.2)" stroke="#1A76FF" stroke-width="1.5"/>
+                      <circle cx="19" cy="7" r="2" fill="#22C55E"/>
+                      <circle cx="19" cy="17" r="2" fill="#22C55E"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="page-title" style="margin-bottom:0;">Jira MCP Server</div>
+                    <div style="font-size:12px;color:#22C55E;font-weight:500;">● Active</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Auth card -->
+              <div class="card" style="animation:0.5s enter-up cubic-bezier(0.22,1,0.36,1) 0.95s both;">
+                <div class="card-title">Authentication</div>
+
+                <div class="field-wrap"
+                  style="animation:0.4s enter-up cubic-bezier(0.22,1,0.36,1) 1.2s both;">
+                  <label class="field-label">Auth Method</label>
+                  <div class="field" style="justify-content:space-between;">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <div style="width:8px;height:8px;border-radius:50%;background:#1A76FF;"></div>
+                      <span>OAuth 2.0 / OIDC</span>
+                    </div>
+                    <svg viewBox="0 0 16 16" width="14" height="14" fill="none">
+                      <path d="M4 6l4 4 4-4" stroke="#6B7280" stroke-width="1.5"
+                        stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                </div>
+
+                <div class="field-wrap"
+                  style="animation:0.4s enter-up cubic-bezier(0.22,1,0.36,1) 1.35s both;">
+                  <label class="field-label">Client ID</label>
+                  <div class="field">
+                    <span>jc-gw-a8f3k2m9-prod</span>
+                  </div>
+                </div>
+
+                <!-- Toggle rows -->
+                <div style="animation:0.4s enter-up cubic-bezier(0.22,1,0.36,1) 1.5s both;">
+                  <div style="display:flex;align-items:center;justify-content:space-between;
+                    padding:10px 0; border-top:1px solid rgba(255,255,255,0.05);">
+                    <div>
+                      <div style="font-size:13px;font-weight:500;color:#D1D5DB;">Require MFA</div>
+                      <div style="font-size:12px;color:#374151;margin-top:2px;">Enforce second factor on login</div>
+                    </div>
+                    <div class="toggle-track" style="animation:toggle-on ease-out 0.4s 2.0s both;">
+                      <div class="toggle-thumb"></div>
+                    </div>
+                  </div>
+
+                  <div style="display:flex;align-items:center;justify-content:space-between;
+                    padding:10px 0; border-top:1px solid rgba(255,255,255,0.05);">
+                    <div>
+                      <div style="font-size:13px;font-weight:500;color:#D1D5DB;">Audit Logging</div>
+                      <div style="font-size:12px;color:#374151;margin-top:2px;">Log all AI client requests</div>
+                    </div>
+                    <div class="toggle-track" style="animation:toggle-on ease-out 0.4s 2.25s both;">
+                      <div class="toggle-thumb"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ef-timegroup>
+
+      <!-- ╔══════════════════════════════════════════════════╗
+           ║  SCENE 5 — Users Connect AI Clients  (5s)      ║
+           ╚══════════════════════════════════════════════════╝ -->
+      <ef-timegroup mode="fixed" duration="5s" class="absolute w-full h-full"
+        style="animation:0.5s scene-exit cubic-bezier(0.55,0,1,0.45) var(--ef-transition-out-start) both;">
+
+        <div style="position:absolute; right:600px; top:150px; width:700px; height:700px; pointer-events:none;
+          background:radial-gradient(ellipse, rgba(26,118,255,0.05) 0%, transparent 65%);
+          animation:0.8s fade-in 0.2s both;"></div>
+
+        <div style="position:absolute; left:52px; top:240px;
+          font-size:280px; font-weight:900; color:rgba(26,118,255,0.05);
+          line-height:1; user-select:none; pointer-events:none;
+          animation:0.8s fade-in 0.1s both;">05</div>
+
+        <div style="position:absolute; left:82px; top:362px;
+          display:inline-flex; align-items:center; gap:8px;
+          animation:0.5s enter-up cubic-bezier(0.22,1,0.36,1) 0.3s both;">
+          <div style="width:26px;height:26px;border-radius:50%;background:#1A76FF;
+            display:flex;align-items:center;justify-content:center;
+            font-size:12px;font-weight:700;color:white;">5</div>
+          <span style="font-size:12px;font-weight:600;color:#475569;
+            letter-spacing:0.15em;text-transform:uppercase;">Step 05 of 05</span>
+        </div>
+
+        <div style="position:absolute; left:82px; top:406px; max-width:600px;
+          font-size:56px; font-weight:800; color:#F8FAFC;
+          letter-spacing:-1.5px; line-height:1.08;
+          animation:0.6s enter-up cubic-bezier(0.22,1,0.36,1) 0.46s both;">
+          Connect<br>AI Clients
+        </div>
+
+        <div style="position:absolute; left:82px; top:570px; max-width:560px;
+          font-size:19px; font-weight:400; color:#6B7280; line-height:1.65;
+          animation:0.6s enter-up cubic-bezier(0.22,1,0.36,1) 0.6s both;">
+          Share the gateway URL — users paste it<br>into any MCP-compatible AI client.
+        </div>
+
+        <div style="position:absolute; left:82px; bottom:72px;
+          display:flex; gap:8px; animation:0.5s fade-in 0.7s both;">
+          <div style="width:8px;height:3px;border-radius:2px;background:rgba(26,118,255,0.5);"></div>
+          <div style="width:8px;height:3px;border-radius:2px;background:rgba(26,118,255,0.5);"></div>
+          <div style="width:8px;height:3px;border-radius:2px;background:rgba(26,118,255,0.5);"></div>
+          <div style="width:8px;height:3px;border-radius:2px;background:rgba(26,118,255,0.5);"></div>
+          <div style="width:24px;height:3px;border-radius:2px;background:#1A76FF;animation:dot-pulse 2s ease-in-out infinite;"></div>
+        </div>
+
+        <!-- Browser -->
+        <div class="browser" style="animation:0.72s enter-scale cubic-bezier(0.22,1,0.36,1) 0.12s both;">
+          <div style="position:absolute;top:0;left:0;right:0;height:80px;pointer-events:none;z-index:10;
+            background:linear-gradient(180deg,rgba(255,255,255,0.025) 0%,transparent 100%);
+            border-radius:14px 14px 0 0;"></div>
+
+          <div class="browser-bar">
+            <div class="tl tl-r"></div><div class="tl tl-y"></div><div class="tl tl-g"></div>
+            <div class="url-bar">console.jumpcloud.com/ai-gateway/jira-mcp</div>
+          </div>
+
+          <div class="browser-body">
+            <div class="sidebar">
+              <div class="sidebar-brand">
+                <div class="sidebar-logo">JC</div>
+                <span class="sidebar-name">Acme Corp</span>
+              </div>
+              <div class="nav-item"><span class="nav-icon">⊞</span> Dashboard</div>
+              <div class="nav-item"><span class="nav-icon">◎</span> Users</div>
+              <div class="nav-section">Access</div>
+              <div class="nav-item child">SSO Applications</div>
+              <div class="nav-item child">MFA Policies</div>
+              <div class="nav-item child active">AI Gateway</div>
+              <div class="nav-section">Device Mgmt</div>
+              <div class="nav-item"><span class="nav-icon">◻</span> Systems</div>
+            </div>
+
+            <div class="content">
+              <div style="animation:0.5s enter-up cubic-bezier(0.22,1,0.36,1) 0.7s both;">
+                <div style="font-size:11px;color:#374151;margin-bottom:8px;">
+                  AI Gateway &nbsp;›&nbsp; Jira MCP Server &nbsp;›&nbsp; Share
+                </div>
+                <div class="page-title">Connect AI Clients</div>
+                <div class="page-sub">Share this URL with users to connect their AI clients.</div>
+              </div>
+
+              <!-- URL box -->
+              <div class="card" style="animation:0.5s enter-up cubic-bezier(0.22,1,0.36,1) 0.9s both;">
+                <div class="card-title">Gateway URL</div>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <div class="field" style="flex:1; background:#080C16;
+                    border-color:rgba(26,118,255,0.3);">
+                    <span style="color:#60A5FA;font-size:12.5px;font-weight:500;">
+                      https://gateway.jumpcloud.com/mcp/a8f3k2m9
+                    </span>
+                  </div>
+                  <div class="btn-primary" style="flex-shrink:0; padding:9px 16px;">
+                    <svg viewBox="0 0 16 16" width="13" height="13" fill="none">
+                      <rect x="4" y="4" width="9" height="9" rx="2"
+                        stroke="white" stroke-width="1.5"/>
+                      <path d="M2 12V3a1 1 0 011-1h9" stroke="white" stroke-width="1.5"
+                        stroke-linecap="round"/>
+                    </svg>
+                    Copy
+                  </div>
+                </div>
+              </div>
+
+              <!-- Connected clients -->
+              <div class="card" style="animation:0.5s enter-up cubic-bezier(0.22,1,0.36,1) 1.05s both;">
+                <div class="card-title">Active Connections</div>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+
+                  <!-- Client row 1 -->
+                  <div style="display:flex;align-items:center;gap:12px;
+                    padding:10px 14px; border-radius:8px;
+                    background:#080C16; border:1px solid rgba(255,255,255,0.05);
+                    animation:0.45s connected-in cubic-bezier(0.22,1,0.36,1) 1.5s both;">
+                    <div style="width:32px;height:32px;border-radius:8px;
+                      background:linear-gradient(135deg,#7C3AED,#5B21B6);
+                      display:flex;align-items:center;justify-content:center;
+                      font-size:14px;font-weight:800;color:white;">A</div>
+                    <div style="flex:1;">
+                      <div style="font-size:13px;font-weight:600;color:#E2E8F0;">Claude (Anthropic)</div>
+                      <div style="font-size:11.5px;color:#374151;">3 users connected</div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:5px;
+                      font-size:12px;font-weight:600;color:#22C55E;">
+                      <div style="width:6px;height:6px;border-radius:50%;background:#22C55E;"></div>
+                      Connected
+                    </div>
+                  </div>
+
+                  <!-- Client row 2 -->
+                  <div style="display:flex;align-items:center;gap:12px;
+                    padding:10px 14px; border-radius:8px;
+                    background:#080C16; border:1px solid rgba(255,255,255,0.05);
+                    animation:0.45s connected-in cubic-bezier(0.22,1,0.36,1) 1.7s both;">
+                    <div style="width:32px;height:32px;border-radius:8px;
+                      background:linear-gradient(135deg,#059669,#047857);
+                      display:flex;align-items:center;justify-content:center;
+                      font-size:11px;font-weight:800;color:white;">GPT</div>
+                    <div style="flex:1;">
+                      <div style="font-size:13px;font-weight:600;color:#E2E8F0;">ChatGPT (OpenAI)</div>
+                      <div style="font-size:11.5px;color:#374151;">7 users connected</div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:5px;
+                      font-size:12px;font-weight:600;color:#22C55E;">
+                      <div style="width:6px;height:6px;border-radius:50%;background:#22C55E;"></div>
+                      Connected
+                    </div>
+                  </div>
+
+                  <!-- Client row 3 -->
+                  <div style="display:flex;align-items:center;gap:12px;
+                    padding:10px 14px; border-radius:8px;
+                    background:#080C16; border:1px solid rgba(255,255,255,0.05);
+                    animation:0.45s connected-in cubic-bezier(0.22,1,0.36,1) 1.9s both;">
+                    <div style="width:32px;height:32px;border-radius:8px;
+                      background:linear-gradient(135deg,#0284C7,#0369A1);
+                      display:flex;align-items:center;justify-content:center;
+                      font-size:9px;font-weight:800;color:white;">COP</div>
+                    <div style="flex:1;">
+                      <div style="font-size:13px;font-weight:600;color:#E2E8F0;">Copilot (Microsoft)</div>
+                      <div style="font-size:11.5px;color:#374151;">12 users connected</div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:5px;
+                      font-size:12px;font-weight:600;color:#22C55E;">
+                      <div style="width:6px;height:6px;border-radius:50%;background:#22C55E;"></div>
+                      Connected
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ef-timegroup>
+
+      <!-- ╔══════════════════════════════════════════════════╗
+           ║  SCENE 6 — Outro  (3s)                         ║
+           ╚══════════════════════════════════════════════════╝ -->
+      <ef-timegroup mode="fixed" duration="3s" class="absolute w-full h-full">
+
+        <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+          width:1000px; height:800px; pointer-events:none;
+          background:radial-gradient(ellipse at center, rgba(26,118,255,0.12) 0%, transparent 65%);
+          animation:1.2s fade-in ease-out both;"></div>
+
+        <div style="position:absolute; inset:0; pointer-events:none;
+          background-image: linear-gradient(rgba(26,118,255,0.05) 1px, transparent 1px),
+                            linear-gradient(90deg, rgba(26,118,255,0.05) 1px, transparent 1px);
+          background-size:120px 120px;
+          animation:0.8s fade-in 0.2s both;"></div>
+
+        <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-52%);
+          display:flex; flex-direction:column; align-items:center; gap:20px;">
+
+          <!-- Checkmark badge -->
+          <div style="width:80px; height:80px; border-radius:50%;
+            background:linear-gradient(145deg,#1A76FF,#0D5BCC);
+            display:flex; align-items:center; justify-content:center;
+            box-shadow:0 0 60px 16px rgba(26,118,255,0.35);
+            animation:0.65s enter-scale cubic-bezier(0.22,1,0.36,1) 0.1s both;">
+            <svg viewBox="0 0 32 32" width="36" height="36" fill="none">
+              <path d="M8 16l6 6 10-12" stroke="white" stroke-width="3"
+                stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+
+          <ef-text style="font-size:72px; font-weight:800; color:#F8FAFC;
+            letter-spacing:-2.5px; line-height:1;
+            animation:0.55s enter-up cubic-bezier(0.22,1,0.36,1) 0.4s both;">
+            You're live.
+          </ef-text>
+
+          <div style="display:flex; align-items:center; gap:18px;
+            animation:0.55s enter-up cubic-bezier(0.22,1,0.36,1) 0.6s both;">
+            <div style="width:56px; height:2px; background:linear-gradient(90deg,transparent,#1A76FF);"></div>
+            <ef-text style="font-size:22px; font-weight:500; color:#4B5563;">
+              JumpCloud AI Gateway
+            </ef-text>
+            <div style="width:56px; height:2px; background:linear-gradient(90deg,#1A76FF,transparent);"></div>
+          </div>
+
+          <!-- Feature pills -->
+          <div style="display:flex; gap:10px; margin-top:8px;
+            animation:0.55s enter-up cubic-bezier(0.22,1,0.36,1) 0.78s both;">
+            <span style="background:rgba(26,118,255,0.1);border:1px solid rgba(26,118,255,0.3);
+              border-radius:20px;padding:7px 16px;color:#60A5FA;font-size:13px;font-weight:600;">
+              Secure
+            </span>
+            <span style="background:rgba(26,118,255,0.1);border:1px solid rgba(26,118,255,0.3);
+              border-radius:20px;padding:7px 16px;color:#60A5FA;font-size:13px;font-weight:600;">
+              Governed
+            </span>
+            <span style="background:rgba(26,118,255,0.1);border:1px solid rgba(26,118,255,0.3);
+              border-radius:20px;padding:7px 16px;color:#60A5FA;font-size:13px;font-weight:600;">
+              Observable
+            </span>
+          </div>
+        </div>
+
+        <!-- All steps complete indicator -->
+        <div style="position:absolute; bottom:72px; left:50%; transform:translateX(-50%);
+          display:flex; gap:8px; animation:0.5s fade-in 0.9s both;">
+          <div style="width:8px;height:3px;border-radius:2px;background:rgba(26,118,255,0.5);"></div>
+          <div style="width:8px;height:3px;border-radius:2px;background:rgba(26,118,255,0.5);"></div>
+          <div style="width:8px;height:3px;border-radius:2px;background:rgba(26,118,255,0.5);"></div>
+          <div style="width:8px;height:3px;border-radius:2px;background:rgba(26,118,255,0.5);"></div>
+          <div style="width:8px;height:3px;border-radius:2px;background:rgba(26,118,255,0.5);"></div>
+        </div>
+      </ef-timegroup>
+
     </ef-timegroup>
   </body>
 </html>
