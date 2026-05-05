@@ -3,20 +3,460 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Editframe Project</title>
+    <title>JumpCloud AI Gateway</title>
     <script type="module" src="./src/index.js"></script>
     <link rel="stylesheet" href="./src/styles.css" />
+    <style>
+      * { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif; }
+
+      /* ── Entrances ── */
+      @keyframes fade-in  { from { opacity: 0; }                              to { opacity: 1; }              }
+      @keyframes enter-up { from { transform: translateY(24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+      @keyframes scale-in { from { transform: scale(0.75); opacity: 0; }      to { transform: scale(1);   opacity: 1; } }
+      /* ── Exits ── */
+      @keyframes exit-up  { from { transform: translateY(0); opacity: 1; }    to { transform: translateY(-20px); opacity: 0; } }
+      /* ── Connector ── */
+      @keyframes draw-line { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0% 0 0); } }
+      /* ── Gateway pulse ── */
+      @keyframes pulse-ring {
+        0%,100% { box-shadow: 0 0 10px 2px rgba(26,118,255,0.3); }
+        50%      { box-shadow: 0 0 30px 10px rgba(26,118,255,0.65); }
+      }
+    </style>
   </head>
-  <body class="h-full w-full m-0 p-0 bg-slate-900">
+  <body class="h-full w-full m-0 p-0">
+    <!--
+      Total duration: 4s (title) + 22s (arch) − 0.8s (overlap) = 25.2 s
+      JumpCloud blue: #1A76FF
+      Layout (1920 px wide):
+        80 | Node1(200) | 260 | Node2-Gateway(280) | 260 | Node3(200) | 280 | Node4(260) | 100
+      All node vertical centers at y = 480.
+      Connectors: y = 479, height = 2 px.
+    -->
     <ef-timegroup
       workbench
       mode="sequence"
-      class="w-[1920px] h-[1080px] bg-black relative overflow-hidden"
+      overlap="0.8s"
+      class="w-[1920px] h-[1080px] relative overflow-hidden"
+      style="background: #080D1A;"
     >
-      <!-- Add your composition here -->
-      <ef-timegroup mode="fixed" duration="5s" class="absolute w-full h-full flex items-center justify-center">
-        <ef-text duration="5s" class="text-white text-4xl">Your video starts here</ef-text>
+
+      <!-- ══════════════════════════════════════════════════════════
+           SCENE 1 — Title Card  (4 s)
+           Intent: premium first impression; Metal material; no bounce
+           ══════════════════════════════════════════════════════════ -->
+      <ef-timegroup mode="fixed" duration="4s" class="absolute w-full h-full flex flex-col items-center justify-center"
+        style="animation: 0.5s exit-up var(--ef-transition-out-start) both;">
+
+        <!-- Subtle grid -->
+        <div class="absolute inset-0" style="
+          background-image:
+            linear-gradient(rgba(26,118,255,0.07) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(26,118,255,0.07) 1px, transparent 1px);
+          background-size: 100px 100px;
+          animation: 1.2s fade-in ease-out both;"></div>
+
+        <!-- Radial glow -->
+        <div class="absolute" style="
+          width: 700px; height: 700px;
+          background: radial-gradient(circle, rgba(26,118,255,0.14) 0%, transparent 70%);
+          top: 50%; left: 50%; transform: translate(-50%,-50%);
+          animation: 1s fade-in 0.3s both;"></div>
+
+        <!-- Content stack -->
+        <div class="relative flex flex-col items-center" style="gap: 20px;">
+
+          <!-- Shield icon -->
+          <div style="
+            width: 96px; height: 96px; border-radius: 24px;
+            background: linear-gradient(135deg, #1A76FF, #0D5BCC);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 60px 16px rgba(26,118,255,0.45);
+            animation: 0.6s scale-in cubic-bezier(0,0.55,0.45,1) 0.2s both;">
+            <svg viewBox="0 0 48 48" width="52" height="52" fill="none">
+              <path d="M24 5L7 13v11c0 10.5 7.3 19.5 17 22 9.7-2.5 17-11.5 17-22V13L24 5z"
+                fill="rgba(255,255,255,0.15)" stroke="white" stroke-width="2.5"/>
+              <path d="M17 24l5 5 9-10" stroke="white" stroke-width="3"
+                stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+
+          <!-- JumpCloud wordmark -->
+          <ef-text style="
+            font-size: 80px; font-weight: 800; color: white;
+            letter-spacing: -2px; line-height: 1;
+            animation: 0.5s enter-up cubic-bezier(0,0.55,0.45,1) 0.5s both;">JumpCloud</ef-text>
+
+          <!-- AI Gateway accent line -->
+          <div style="
+            display: flex; align-items: center; gap: 16px;
+            animation: 0.5s enter-up cubic-bezier(0,0.55,0.45,1) 0.75s both;">
+            <div style="width: 60px; height: 2px; background: linear-gradient(90deg, transparent, #1A76FF);"></div>
+            <ef-text style="
+              font-size: 30px; font-weight: 700; color: #1A76FF;
+              letter-spacing: 0.25em;">AI GATEWAY</ef-text>
+            <div style="width: 60px; height: 2px; background: linear-gradient(90deg, #1A76FF, transparent);"></div>
+          </div>
+
+          <!-- Tagline -->
+          <ef-text style="
+            font-size: 22px; color: #64748B;
+            animation: 0.5s enter-up cubic-bezier(0,0.55,0.45,1) 1s both;">
+            Secure · Govern · Audit  AI-to-Application Access
+          </ef-text>
+
+        </div>
       </ef-timegroup>
+
+      <!-- ══════════════════════════════════════════════════════════
+           SCENE 2 — Architecture Flow  (22 s)
+           Nodes enter L→R; connector lines draw in; data packets
+           flow after full diagram is built (~7 s mark).
+           ══════════════════════════════════════════════════════════ -->
+      <ef-timegroup id="arch-scene" mode="fixed" duration="22s" class="absolute w-full h-full">
+
+        <!-- Grid -->
+        <div class="absolute inset-0" style="
+          background-image:
+            linear-gradient(rgba(26,118,255,0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(26,118,255,0.04) 1px, transparent 1px);
+          background-size: 100px 100px;"></div>
+
+        <!-- Section label -->
+        <div style="
+          position: absolute; top: 52px; left: 50%; transform: translateX(-50%);
+          display: flex; align-items: center; gap: 12px;
+          animation: 0.6s fade-in 0.5s both;">
+          <div style="width: 32px; height: 1px; background: rgba(26,118,255,0.5);"></div>
+          <span style="font-size: 15px; font-weight: 600; color: #475569;
+            letter-spacing: 0.2em; text-transform: uppercase;">AI Gateway Architecture</span>
+          <div style="width: 32px; height: 1px; background: rgba(26,118,255,0.5);"></div>
+        </div>
+
+        <!-- ─────────────────────────────────────────
+             NODE 1  AI Client
+             left=80  top=400  w=200  h=160
+             center=(180, 480)
+        ───────────────────────────────────────── -->
+        <div style="
+          position: absolute; left: 80px; top: 400px;
+          display: flex; flex-direction: column; align-items: center;
+          animation: 0.5s enter-up cubic-bezier(0,0.55,0.45,1) 0.8s both;">
+
+          <div style="
+            width: 200px; height: 160px;
+            background: #0C1525;
+            border: 2px solid rgba(26,118,255,0.6); border-radius: 16px;
+            box-shadow: 0 0 20px rgba(26,118,255,0.2), inset 0 1px 0 rgba(255,255,255,0.05);
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; gap: 12px;">
+
+            <svg viewBox="0 0 48 48" width="42" height="42" fill="none">
+              <rect x="8" y="10" width="32" height="22" rx="4"
+                fill="rgba(26,118,255,0.12)" stroke="#1A76FF" stroke-width="2"/>
+              <rect x="4" y="32" width="40" height="5" rx="2.5"
+                fill="#1A76FF" opacity="0.5"/>
+              <circle cx="24" cy="21" r="5.5"
+                fill="rgba(26,118,255,0.25)" stroke="#1A76FF" stroke-width="1.5"/>
+              <path d="M21 21 C21 18.5 27 18.5 27 21"
+                stroke="#60A5FA" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+              <circle cx="24" cy="23" r="1.5" fill="#60A5FA"/>
+            </svg>
+
+            <div style="text-align: center;">
+              <div style="color: white; font-size: 17px; font-weight: 700;">AI Client</div>
+            </div>
+          </div>
+
+          <div style="margin-top: 10px; color: #475569; font-size: 13px; text-align: center;">
+            Claude · GPT · Copilot
+          </div>
+        </div>
+
+        <!-- CONNECTOR 1→2  x=280→540  y=479 -->
+        <div style="
+          position: absolute; left: 280px; top: 479px; width: 260px; height: 2px;
+          background: linear-gradient(90deg, #1A76FF 0%, rgba(26,118,255,0.55) 100%);
+          animation: 0.45s draw-line cubic-bezier(0.25,0.46,0.45,0.94) 1.6s both;">
+          <div style="
+            position: absolute; right: -1px; top: -5px;
+            border-top: 6px solid transparent; border-bottom: 6px solid transparent;
+            border-left: 10px solid #1A76FF;"></div>
+        </div>
+
+        <!-- ─────────────────────────────────────────
+             NODE 2  JumpCloud Gateway  (hero node)
+             left=540  top=380  w=280  h=200
+             center=(680, 480)
+        ───────────────────────────────────────── -->
+        <div style="
+          position: absolute; left: 540px; top: 380px;
+          display: flex; flex-direction: column; align-items: center;
+          animation: 0.65s scale-in cubic-bezier(0,0.55,0.45,1) 2.2s both;">
+
+          <!-- Pulse ring (starts after node is fully visible) -->
+          <div style="
+            position: absolute; top: -12px; left: -12px; right: -12px; bottom: -62px;
+            border: 1.5px solid rgba(26,118,255,0.3); border-radius: 26px;
+            animation: pulse-ring 2.5s ease-in-out 3.5s infinite;"></div>
+
+          <div style="
+            width: 280px; height: 200px;
+            background: linear-gradient(150deg, #0D2047 0%, #0A1530 100%);
+            border: 2px solid #1A76FF; border-radius: 20px;
+            box-shadow: 0 0 50px rgba(26,118,255,0.45), inset 0 1px 0 rgba(255,255,255,0.08);
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; gap: 10px;">
+
+            <svg viewBox="0 0 48 48" width="54" height="54" fill="none">
+              <path d="M24 4L6 12v12c0 11 8 20 18 22 10-2 18-11 18-22V12L24 4z"
+                fill="rgba(26,118,255,0.18)" stroke="#1A76FF" stroke-width="2.5"/>
+              <circle cx="24" cy="22" r="7" fill="#1A76FF"/>
+              <path d="M21 22l2.5 2.5L28 19"
+                stroke="white" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+
+            <div style="text-align: center;">
+              <div style="color: white; font-size: 22px; font-weight: 800; letter-spacing: -0.5px;">JumpCloud</div>
+              <div style="color: #60A5FA; font-size: 16px; font-weight: 600; margin-top: 2px;">AI Gateway</div>
+            </div>
+          </div>
+
+          <!-- Auth / Policy / Audit badges (staggered after node settles) -->
+          <div style="
+            display: flex; gap: 8px; margin-top: 14px;
+            animation: 0.5s enter-up ease-out 3.4s both;">
+            <span style="
+              background: rgba(26,118,255,0.12);
+              border: 1px solid rgba(26,118,255,0.45); border-radius: 20px;
+              padding: 5px 12px; color: #93C5FD; font-size: 12px; font-weight: 600;">Auth</span>
+            <span style="
+              background: rgba(26,118,255,0.12);
+              border: 1px solid rgba(26,118,255,0.45); border-radius: 20px;
+              padding: 5px 12px; color: #93C5FD; font-size: 12px; font-weight: 600;">Policy</span>
+            <span style="
+              background: rgba(26,118,255,0.12);
+              border: 1px solid rgba(26,118,255,0.45); border-radius: 20px;
+              padding: 5px 12px; color: #93C5FD; font-size: 12px; font-weight: 600;">Audit</span>
+          </div>
+        </div>
+
+        <!-- CONNECTOR 2→3  x=820→1080  y=479 -->
+        <div style="
+          position: absolute; left: 820px; top: 479px; width: 260px; height: 2px;
+          background: linear-gradient(90deg, rgba(26,118,255,0.55) 0%, #1A76FF 100%);
+          animation: 0.45s draw-line cubic-bezier(0.25,0.46,0.45,0.94) 3.3s both;">
+          <div style="
+            position: absolute; right: -1px; top: -5px;
+            border-top: 6px solid transparent; border-bottom: 6px solid transparent;
+            border-left: 10px solid #1A76FF;"></div>
+        </div>
+
+        <!-- ─────────────────────────────────────────
+             NODE 3  MCP Server
+             left=1080  top=400  w=200  h=160
+             center=(1180, 480)
+        ───────────────────────────────────────── -->
+        <div style="
+          position: absolute; left: 1080px; top: 400px;
+          display: flex; flex-direction: column; align-items: center;
+          animation: 0.5s enter-up cubic-bezier(0,0.55,0.45,1) 3.9s both;">
+
+          <div style="
+            width: 200px; height: 160px;
+            background: #0C1525;
+            border: 2px solid rgba(26,118,255,0.6); border-radius: 16px;
+            box-shadow: 0 0 20px rgba(26,118,255,0.2), inset 0 1px 0 rgba(255,255,255,0.05);
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; gap: 12px;">
+
+            <svg viewBox="0 0 48 48" width="42" height="42" fill="none">
+              <rect x="6" y="8" width="36" height="11" rx="3"
+                fill="rgba(26,118,255,0.12)" stroke="#1A76FF" stroke-width="2"/>
+              <rect x="6" y="23" width="36" height="11" rx="3"
+                fill="rgba(26,118,255,0.12)" stroke="#1A76FF" stroke-width="2"/>
+              <circle cx="38" cy="13.5" r="2.5" fill="#22C55E"/>
+              <circle cx="38" cy="28.5" r="2.5" fill="#22C55E"/>
+              <rect x="10" y="11" width="14" height="3" rx="1.5" fill="#1A76FF" opacity="0.5"/>
+              <rect x="10" y="26" width="14" height="3" rx="1.5" fill="#1A76FF" opacity="0.5"/>
+            </svg>
+
+            <div style="text-align: center;">
+              <div style="color: white; font-size: 17px; font-weight: 700;">MCP Server</div>
+            </div>
+          </div>
+
+          <div style="margin-top: 10px; color: #475569; font-size: 13px; text-align: center;">
+            Model Context Protocol
+          </div>
+        </div>
+
+        <!-- CONNECTOR 3→4  x=1280→1560  y=479 -->
+        <div style="
+          position: absolute; left: 1280px; top: 479px; width: 280px; height: 2px;
+          background: linear-gradient(90deg, #1A76FF 0%, rgba(26,118,255,0.55) 100%);
+          animation: 0.45s draw-line cubic-bezier(0.25,0.46,0.45,0.94) 5.0s both;">
+          <div style="
+            position: absolute; right: -1px; top: -5px;
+            border-top: 6px solid transparent; border-bottom: 6px solid transparent;
+            border-left: 10px solid rgba(26,118,255,0.85);"></div>
+        </div>
+
+        <!-- ─────────────────────────────────────────
+             NODE 4  Enterprise App
+             left=1560  top=400  w=260  h=160
+             center=(1690, 480)
+        ───────────────────────────────────────── -->
+        <div style="
+          position: absolute; left: 1560px; top: 400px;
+          display: flex; flex-direction: column; align-items: center;
+          animation: 0.5s enter-up cubic-bezier(0,0.55,0.45,1) 5.6s both;">
+
+          <div style="
+            width: 260px; height: 160px;
+            background: #0C1525;
+            border: 2px solid rgba(26,118,255,0.6); border-radius: 16px;
+            box-shadow: 0 0 20px rgba(26,118,255,0.2), inset 0 1px 0 rgba(255,255,255,0.05);
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; gap: 12px;">
+
+            <svg viewBox="0 0 48 48" width="42" height="42" fill="none">
+              <rect x="6" y="14" width="36" height="28" rx="4"
+                fill="rgba(26,118,255,0.12)" stroke="#1A76FF" stroke-width="2"/>
+              <rect x="13" y="6" width="22" height="12" rx="3"
+                fill="rgba(26,118,255,0.08)" stroke="#1A76FF" stroke-width="1.5"/>
+              <rect x="19" y="30" width="10" height="12" rx="2" fill="#1A76FF" opacity="0.5"/>
+              <rect x="10" y="20" width="8" height="7" rx="2" fill="#1A76FF" opacity="0.35"/>
+              <rect x="30" y="20" width="8" height="7" rx="2" fill="#1A76FF" opacity="0.35"/>
+            </svg>
+
+            <div style="text-align: center;">
+              <div style="color: white; font-size: 17px; font-weight: 700;">Enterprise App</div>
+            </div>
+          </div>
+
+          <div style="margin-top: 10px; color: #475569; font-size: 13px; text-align: center;">
+            Jira · Salesforce · SAP
+          </div>
+        </div>
+
+        <!-- ─── Data packet canvas overlay ─── -->
+        <canvas id="flow-canvas" style="
+          position: absolute; top: 0; left: 0;
+          width: 1920px; height: 1080px;
+          pointer-events: none;"></canvas>
+
+        <!-- ─── Bottom feature summary ─── -->
+        <div style="
+          position: absolute; bottom: 72px; left: 50%; transform: translateX(-50%);
+          display: flex; align-items: center; gap: 32px; white-space: nowrap;
+          animation: 0.7s enter-up cubic-bezier(0,0.55,0.45,1) 7.5s both;">
+
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 6px; height: 6px; border-radius: 50%; background: #22C55E;"></div>
+            <span style="color: #64748B; font-size: 15px; font-weight: 500;">Zero-Trust Identity</span>
+          </div>
+          <div style="width: 1px; height: 18px; background: rgba(100,116,139,0.3);"></div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 6px; height: 6px; border-radius: 50%; background: #1A76FF;"></div>
+            <span style="color: #64748B; font-size: 15px; font-weight: 500;">Policy Enforcement</span>
+          </div>
+          <div style="width: 1px; height: 18px; background: rgba(100,116,139,0.3);"></div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 6px; height: 6px; border-radius: 50%; background: #8B5CF6;"></div>
+            <span style="color: #64748B; font-size: 15px; font-weight: 500;">Full Audit Trail</span>
+          </div>
+          <div style="width: 1px; height: 18px; background: rgba(100,116,139,0.3);"></div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 6px; height: 6px; border-radius: 50%; background: #F59E0B;"></div>
+            <span style="color: #64748B; font-size: 15px; font-weight: 500;">Observable Requests</span>
+          </div>
+        </div>
+
+      </ef-timegroup>
+
     </ef-timegroup>
+
+    <script>
+      // ── Animated data packets flowing along the three connector segments ──
+      // Uses addFrameTask for deterministic, frame-perfect rendering.
+      const scene  = document.getElementById('arch-scene');
+      const canvas = document.getElementById('flow-canvas');
+      const ctx    = canvas.getContext('2d');
+
+      // Connector segments in 1920×1080 composition space.
+      // Each packet travels left→right along y=480.
+      const SEGMENTS = [
+        { x1: 280,  x2: 540,  y: 480 },
+        { x1: 820,  x2: 1080, y: 480 },
+        { x1: 1280, x2: 1560, y: 480 },
+      ];
+
+      const SPEED_PX_PER_MS = 0.22;   // ~220 px/s — comfortable pace
+      const PACKETS          = 3;      // concurrent packets per segment
+      const GAP_MS           = 650;    // stagger between packet launches
+      const FLOW_START_MS    = 7200;   // first packet appears once all nodes are settled
+
+      scene.addFrameTask((t, dur) => {
+        // Resize canvas intrinsic resolution to match its CSS layout size
+        canvas.width  = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+
+        const W  = canvas.width;
+        const H  = canvas.height;
+        const sx = W / 1920;
+        const sy = H / 1080;
+
+        ctx.clearRect(0, 0, W, H);
+        if (t < FLOW_START_MS) return;
+
+        const elapsed = t - FLOW_START_MS;
+
+        for (const seg of SEGMENTS) {
+          const segLen    = seg.x2 - seg.x1;
+          const travelMs  = segLen / SPEED_PX_PER_MS;
+          const cycleMs   = travelMs + GAP_MS * PACKETS;
+
+          for (let i = 0; i < PACKETS; i++) {
+            const phase = (elapsed - i * GAP_MS) % cycleMs;
+            if (phase < 0 || phase > travelMs) continue;
+
+            const frac = phase / travelMs;
+            const px   = (seg.x1 + segLen * frac) * sx;
+            const py   = seg.y * sy;
+
+            // Tail — fades in behind the packet
+            const tailPx = 55 * sx;
+            const tailGrd = ctx.createLinearGradient(px - tailPx, py, px, py);
+            tailGrd.addColorStop(0, 'rgba(26,118,255,0)');
+            tailGrd.addColorStop(1, 'rgba(26,118,255,0.5)');
+            ctx.beginPath();
+            ctx.moveTo(px - tailPx, py);
+            ctx.lineTo(px, py);
+            ctx.strokeStyle = tailGrd;
+            ctx.lineWidth   = 2 * sy;
+            ctx.stroke();
+
+            // Glow halo
+            const r   = 14 * sx;
+            const grd = ctx.createRadialGradient(px, py, 0, px, py, r);
+            grd.addColorStop(0,   'rgba(26,118,255,0.9)');
+            grd.addColorStop(0.4, 'rgba(26,118,255,0.35)');
+            grd.addColorStop(1,   'rgba(26,118,255,0)');
+            ctx.beginPath();
+            ctx.arc(px, py, r, 0, Math.PI * 2);
+            ctx.fillStyle = grd;
+            ctx.fill();
+
+            // Bright core dot
+            ctx.beginPath();
+            ctx.arc(px, py, 4 * sx, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255,255,255,0.95)';
+            ctx.fill();
+          }
+        }
+      });
+    </script>
   </body>
 </html>
