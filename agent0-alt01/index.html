@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en" class="h-screen w-full">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JumpCloud AI Gateway — Product Demo</title>
+    <script type="module" src="./src/index.js"></script>
+    <link rel="stylesheet" href="./src/styles.css" />
+    <style>
+      * { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif; }
+
+      /* ── Keyframes ── */
+      @keyframes fade-in   { from { opacity: 0; }                               to { opacity: 1; }              }
+      @keyframes enter-up  { from { transform: translateY(28px); opacity: 0; }  to { transform: translateY(0); opacity: 1; } }
+      @keyframes enter-dn  { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+      @keyframes scale-in  { from { transform: scale(0.88); opacity: 0; }       to { transform: scale(1);   opacity: 1; } }
+      @keyframes exit-up   { from { transform: translateY(0);   opacity: 1; }   to { transform: translateY(-24px); opacity: 0; } }
+      @keyframes exit-fade { from { opacity: 1; }                               to { opacity: 0; } }
+      @keyframes slide-in-right { from { transform: translateX(60px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+      @keyframes callout-in { from { transform: translateX(40px) scale(0.95); opacity: 0; } to { transform: translateX(0) scale(1); opacity: 1; } }
+      @keyframes underline-draw { from { width: 0; } to { width: 100%; } }
+      @keyframes pulse-glow {
+        0%, 100% { box-shadow: 0 0 40px 8px rgba(26,118,255,0.25); }
+        50%       { box-shadow: 0 0 80px 24px rgba(26,118,255,0.5); }
+      }
+      @keyframes tag-pop {
+        0%   { transform: scale(0.7); opacity: 0; }
+        60%  { transform: scale(1.08); opacity: 1; }
+        100% { transform: scale(1);   opacity: 1; }
+      }
+    </style>
+  </head>
+  <body class="h-full w-full m-0 p-0">
+    <!--
+      Total: 5s title + 7s dashboard + 7s servers + 7s profiles + 4s outro ≈ 30s
+      Overlap: 0.5s between scenes for smooth crossfade
+      JumpCloud blue: #1A76FF  |  Dark bg: #080D1A  |  Card bg: #0C1525
+    -->
+    <ef-timegroup
+      workbench
+      mode="sequence"
+      overlap="0.5s"
+      class="w-[1920px] h-[1080px] relative overflow-hidden"
+      style="background: #080D1A;"
+    >
+
+      <!-- ══════════════════════════════════════════════════════════
+           SCENE 1 — Hero Title  (5 s)
+           ══════════════════════════════════════════════════════════ -->
+      <ef-timegroup mode="fixed" duration="5s" class="absolute w-full h-full flex flex-col items-center justify-center"
+        style="animation: 0.5s exit-fade var(--ef-transition-out-start) both;">
+
+        <!-- Grid overlay -->
+        <div class="absolute inset-0" style="
+          background-image:
+            linear-gradient(rgba(26,118,255,0.06) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(26,118,255,0.06) 1px, transparent 1px);
+          background-size: 80px 80px;
+          animation: 1s fade-in ease-out both;"></div>
+
+        <!-- Radial glow -->
+        <div class="absolute" style="
+          width: 800px; height: 800px;
+          background: radial-gradient(circle, rgba(26,118,255,0.12) 0%, transparent 65%);
+          top: 50%; left: 50%; transform: translate(-50%,-50%);"></div>
+
+        <div class="relative flex flex-col items-center" style="gap: 24px;">
+
+          <!-- CPU chip icon — Circuit DS CpuChipIcon aesthetic -->
+          <div style="
+            width: 100px; height: 100px; border-radius: 22px;
+            background: linear-gradient(135deg, #1A76FF 0%, #0D5BCC 100%);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 70px 20px rgba(26,118,255,0.5);
+            animation: 0.7s scale-in cubic-bezier(0,0.55,0.45,1) 0.2s both;">
+            <svg viewBox="0 0 24 24" width="52" height="52" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="7" y="7" width="10" height="10" rx="1"/>
+              <path d="M7 9H5M7 12H5M7 15H5M17 9h2M17 12h2M17 15h2M9 7V5M12 7V5M15 7V5M9 19v-2M12 19v-2M15 19v-2"/>
+            </svg>
+          </div>
+
+          <!-- JumpCloud wordmark -->
+          <ef-text style="
+            font-size: 76px; font-weight: 800; color: white;
+            letter-spacing: -2px; line-height: 1;
+            animation: 0.55s enter-up cubic-bezier(0,0.55,0.45,1) 0.55s both;">JumpCloud</ef-text>
+
+          <!-- AI Gateway accent -->
+          <div style="
+            display: flex; align-items: center; gap: 18px;
+            animation: 0.5s enter-up cubic-bezier(0,0.55,0.45,1) 0.85s both;">
+            <div style="width: 64px; height: 2px; background: linear-gradient(90deg, transparent, #1A76FF);"></div>
+            <ef-text style="font-size: 28px; font-weight: 700; color: #1A76FF; letter-spacing: 0.22em;">AI GATEWAY</ef-text>
+            <div style="width: 64px; height: 2px; background: linear-gradient(90deg, #1A76FF, transparent);"></div>
+          </div>
+
+          <!-- Hero headline from JumpCloud Agentic IAM page -->
+          <ef-text style="
+            font-size: 30px; font-weight: 600; color: rgba(255,255,255,0.85);
+            text-align: center; max-width: 820px; line-height: 1.35;
+            animation: 0.5s enter-up cubic-bezier(0,0.55,0.45,1) 1.1s both;">
+            See every agent. Govern every identity.
+          </ef-text>
+
+          <!-- Sub-tagline -->
+          <ef-text style="
+            font-size: 19px; color: #475569; letter-spacing: 0.02em;
+            animation: 0.5s enter-up cubic-bezier(0,0.55,0.45,1) 1.4s both;">
+            Discover · Register · Govern · Audit
+          </ef-text>
+
+        </div>
+      </ef-timegroup>
+
+      <!-- ══════════════════════════════════════════════════════════
+           SCENE 2 — Dashboard  (7 s)
+           ══════════════════════════════════════════════════════════ -->
+      <ef-timegroup mode="fixed" duration="7s" class="absolute w-full h-full flex items-center"
+        style="padding: 0 100px; gap: 80px; animation: 0.5s exit-fade var(--ef-transition-out-start) both;">
+
+        <!-- Left: callout copy -->
+        <div style="
+          flex: 0 0 480px; display: flex; flex-direction: column; gap: 28px;
+          animation: 0.6s enter-up cubic-bezier(0,0.55,0.45,1) 0.3s both;">
+
+          <!-- Feature badge -->
+          <div style="
+            display: inline-flex; align-items: center; gap: 10px;
+            background: rgba(26,118,255,0.1); border: 1px solid rgba(26,118,255,0.35);
+            border-radius: 100px; padding: 8px 18px; width: fit-content;
+            animation: 0.5s tag-pop cubic-bezier(0,0.55,0.45,1) 0.1s both;">
+            <div style="width: 8px; height: 8px; border-radius: 50%; background: #1A76FF;"></div>
+            <span style="color: #60A5FA; font-size: 14px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;">Agentic Governance</span>
+          </div>
+
+          <ef-text style="
+            font-size: 48px; font-weight: 800; color: white;
+            line-height: 1.1; letter-spacing: -1px;">
+            Full visibility into AI agent activity
+          </ef-text>
+
+          <ef-text style="font-size: 20px; color: #64748B; line-height: 1.55;">
+            Monitor agent requests, top server usage, and authentication patterns — all in one real-time dashboard.
+          </ef-text>
+
+          <!-- Stat chips -->
+          <div style="display: flex; gap: 16px; flex-wrap: wrap; animation: 0.5s enter-up ease-out 0.9s both;">
+            <div style="background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); border-radius: 10px; padding: 12px 20px;">
+              <div style="color: #22C55E; font-size: 26px; font-weight: 800;">99.9%</div>
+              <div style="color: #475569; font-size: 13px; margin-top: 2px;">Auth Success</div>
+            </div>
+            <div style="background: rgba(26,118,255,0.1); border: 1px solid rgba(26,118,255,0.3); border-radius: 10px; padding: 12px 20px;">
+              <div style="color: #60A5FA; font-size: 26px; font-weight: 800;">1.2M</div>
+              <div style="color: #475569; font-size: 13px; margin-top: 2px;">Requests / mo</div>
+            </div>
+            <div style="background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.3); border-radius: 10px; padding: 12px 20px;">
+              <div style="color: #A78BFA; font-size: 26px; font-weight: 800;">100%</div>
+              <div style="color: #475569; font-size: 13px; margin-top: 2px;">Audited</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: browser chrome + screenshot -->
+        <div style="
+          flex: 1; display: flex; flex-direction: column;
+          border-radius: 14px; overflow: hidden;
+          box-shadow: 0 0 80px rgba(26,118,255,0.3), 0 32px 80px rgba(0,0,0,0.6);
+          border: 1px solid rgba(255,255,255,0.08);
+          animation: 0.65s slide-in-right cubic-bezier(0,0.55,0.45,1) 0.5s both;
+          animation: pulse-glow 3s ease-in-out 1.5s infinite;">
+
+          <!-- Browser chrome bar -->
+          <div style="
+            background: #1C2232; padding: 12px 16px;
+            display: flex; align-items: center; gap: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);">
+            <!-- Traffic lights -->
+            <div style="display: flex; gap: 7px;">
+              <div style="width: 13px; height: 13px; border-radius: 50%; background: #FF5F57;"></div>
+              <div style="width: 13px; height: 13px; border-radius: 50%; background: #FEBC2E;"></div>
+              <div style="width: 13px; height: 13px; border-radius: 50%; background: #28C840;"></div>
+            </div>
+            <!-- Address bar -->
+            <div style="
+              flex: 1; background: rgba(255,255,255,0.06); border-radius: 6px;
+              padding: 5px 12px; display: flex; align-items: center; gap: 8px;">
+              <svg viewBox="0 0 16 16" width="12" height="12" fill="#64748B">
+                <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zM2 8a6 6 0 1 1 12 0A6 6 0 0 1 2 8z"/>
+                <path d="M8 4a.5.5 0 0 1 .5.5v3.793l2.146 2.147a.5.5 0 0 1-.708.707L7.5 8.707V4.5A.5.5 0 0 1 8 4z"/>
+              </svg>
+              <span style="color: #64748B; font-size: 13px;">console.jumpcloud.com/#/agent-control</span>
+            </div>
+          </div>
+
+          <!-- Screenshot -->
+          <img src="./assets/dashboard.png" style="width: 100%; display: block; object-fit: cover;" />
+        </div>
+      </ef-timegroup>
+
+      <!-- ══════════════════════════════════════════════════════════
+           SCENE 3 — Servers  (7 s)
+           ══════════════════════════════════════════════════════════ -->
+      <ef-timegroup mode="fixed" duration="7s" class="absolute w-full h-full flex items-center"
+        style="padding: 0 100px; gap: 80px; animation: 0.5s exit-fade var(--ef-transition-out-start) both;">
+
+        <!-- Left: callout copy -->
+        <div style="
+          flex: 0 0 480px; display: flex; flex-direction: column; gap: 28px;
+          animation: 0.6s enter-up cubic-bezier(0,0.55,0.45,1) 0.3s both;">
+
+          <div style="
+            display: inline-flex; align-items: center; gap: 10px;
+            background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3);
+            border-radius: 100px; padding: 8px 18px; width: fit-content;
+            animation: 0.5s tag-pop cubic-bezier(0,0.55,0.45,1) 0.1s both;">
+            <div style="width: 8px; height: 8px; border-radius: 50%; background: #22C55E;"></div>
+            <span style="color: #86EFAC; font-size: 14px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;">MCP Server Registry</span>
+          </div>
+
+          <ef-text style="
+            font-size: 48px; font-weight: 800; color: white;
+            line-height: 1.1; letter-spacing: -1px;">
+            Register and govern every MCP server
+          </ef-text>
+
+          <ef-text style="font-size: 20px; color: #64748B; line-height: 1.55;">
+            Connect any MCP server — from Figma to GitHub Copilot — with OAuth or API Token authentication, managed centrally.
+          </ef-text>
+
+          <!-- Integration logos row -->
+          <div style="display: flex; gap: 12px; flex-wrap: wrap; animation: 0.5s enter-up ease-out 0.9s both;">
+            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px 16px; color: white; font-size: 14px; font-weight: 600;">Figma</div>
+            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px 16px; color: white; font-size: 14px; font-weight: 600;">GitHub Copilot</div>
+            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px 16px; color: white; font-size: 14px; font-weight: 600;">Slack</div>
+            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px 16px; color: white; font-size: 14px; font-weight: 600;">Jira</div>
+            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px 16px; color: #64748B; font-size: 14px; font-weight: 600;">+ many more</div>
+          </div>
+        </div>
+
+        <!-- Right: browser chrome + screenshot -->
+        <div style="
+          flex: 1; display: flex; flex-direction: column;
+          border-radius: 14px; overflow: hidden;
+          box-shadow: 0 0 80px rgba(34,197,94,0.2), 0 32px 80px rgba(0,0,0,0.6);
+          border: 1px solid rgba(255,255,255,0.08);
+          animation: 0.65s slide-in-right cubic-bezier(0,0.55,0.45,1) 0.5s both;">
+
+          <div style="
+            background: #1C2232; padding: 12px 16px;
+            display: flex; align-items: center; gap: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);">
+            <div style="display: flex; gap: 7px;">
+              <div style="width: 13px; height: 13px; border-radius: 50%; background: #FF5F57;"></div>
+              <div style="width: 13px; height: 13px; border-radius: 50%; background: #FEBC2E;"></div>
+              <div style="width: 13px; height: 13px; border-radius: 50%; background: #28C840;"></div>
+            </div>
+            <div style="
+              flex: 1; background: rgba(255,255,255,0.06); border-radius: 6px;
+              padding: 5px 12px; display: flex; align-items: center; gap: 8px;">
+              <svg viewBox="0 0 16 16" width="12" height="12" fill="#64748B">
+                <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zM2 8a6 6 0 1 1 12 0A6 6 0 0 1 2 8z"/>
+              </svg>
+              <span style="color: #64748B; font-size: 13px;">console.jumpcloud.com/#/agent-control/servers</span>
+            </div>
+          </div>
+
+          <img src="./assets/servers.png" style="width: 100%; display: block; object-fit: cover;" />
+        </div>
+      </ef-timegroup>
+
+      <!-- ══════════════════════════════════════════════════════════
+           SCENE 4 — Profiles  (7 s)
+           ══════════════════════════════════════════════════════════ -->
+      <ef-timegroup mode="fixed" duration="7s" class="absolute w-full h-full flex items-center"
+        style="padding: 0 100px; gap: 80px; animation: 0.5s exit-fade var(--ef-transition-out-start) both;">
+
+        <!-- Left: callout copy -->
+        <div style="
+          flex: 0 0 480px; display: flex; flex-direction: column; gap: 28px;
+          animation: 0.6s enter-up cubic-bezier(0,0.55,0.45,1) 0.3s both;">
+
+          <div style="
+            display: inline-flex; align-items: center; gap: 10px;
+            background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.35);
+            border-radius: 100px; padding: 8px 18px; width: fit-content;
+            animation: 0.5s tag-pop cubic-bezier(0,0.55,0.45,1) 0.1s both;">
+            <div style="width: 8px; height: 8px; border-radius: 50%; background: #8B5CF6;"></div>
+            <span style="color: #C4B5FD; font-size: 14px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;">Access Profiles</span>
+          </div>
+
+          <ef-text style="
+            font-size: 48px; font-weight: 800; color: white;
+            line-height: 1.1; letter-spacing: -1px;">
+            Scoped access for every identity
+          </ef-text>
+
+          <ef-text style="font-size: 20px; color: #64748B; line-height: 1.55;">
+            Map user groups to specific servers with fine-grained access profiles — preventing privilege creep across your entire agentic workforce.
+          </ef-text>
+
+          <!-- Zero-trust callout -->
+          <div style="
+            background: rgba(139,92,246,0.08); border: 1px solid rgba(139,92,246,0.25);
+            border-radius: 12px; padding: 18px 22px;
+            display: flex; align-items: flex-start; gap: 14px;
+            animation: 0.5s enter-up ease-out 0.9s both;">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#A78BFA" stroke-width="1.5" style="flex-shrink:0; margin-top: 2px;">
+              <path d="M12 2l4 4-8 8-4-4 8-8zM2 22l4-4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <ef-text style="font-size: 16px; color: #94A3B8; line-height: 1.5;">
+              Zero-trust enforcement — continuous verification from human initiation to resource access.
+            </ef-text>
+          </div>
+        </div>
+
+        <!-- Right: browser chrome + screenshot -->
+        <div style="
+          flex: 1; display: flex; flex-direction: column;
+          border-radius: 14px; overflow: hidden;
+          box-shadow: 0 0 80px rgba(139,92,246,0.25), 0 32px 80px rgba(0,0,0,0.6);
+          border: 1px solid rgba(255,255,255,0.08);
+          animation: 0.65s slide-in-right cubic-bezier(0,0.55,0.45,1) 0.5s both;">
+
+          <div style="
+            background: #1C2232; padding: 12px 16px;
+            display: flex; align-items: center; gap: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);">
+            <div style="display: flex; gap: 7px;">
+              <div style="width: 13px; height: 13px; border-radius: 50%; background: #FF5F57;"></div>
+              <div style="width: 13px; height: 13px; border-radius: 50%; background: #FEBC2E;"></div>
+              <div style="width: 13px; height: 13px; border-radius: 50%; background: #28C840;"></div>
+            </div>
+            <div style="
+              flex: 1; background: rgba(255,255,255,0.06); border-radius: 6px;
+              padding: 5px 12px; display: flex; align-items: center; gap: 8px;">
+              <svg viewBox="0 0 16 16" width="12" height="12" fill="#64748B">
+                <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zM2 8a6 6 0 1 1 12 0A6 6 0 0 1 2 8z"/>
+              </svg>
+              <span style="color: #64748B; font-size: 13px;">console.jumpcloud.com/#/agent-control/profiles</span>
+            </div>
+          </div>
+
+          <img src="./assets/profiles.png" style="width: 100%; display: block; object-fit: cover;" />
+        </div>
+      </ef-timegroup>
+
+      <!-- ══════════════════════════════════════════════════════════
+           SCENE 5 — Outro  (4 s)
+           ══════════════════════════════════════════════════════════ -->
+      <ef-timegroup mode="fixed" duration="4s" class="absolute w-full h-full flex flex-col items-center justify-center">
+
+        <div class="absolute inset-0" style="
+          background-image:
+            linear-gradient(rgba(26,118,255,0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(26,118,255,0.05) 1px, transparent 1px);
+          background-size: 80px 80px;
+          animation: 0.8s fade-in ease-out both;"></div>
+
+        <div class="absolute" style="
+          width: 900px; height: 900px;
+          background: radial-gradient(circle, rgba(26,118,255,0.1) 0%, transparent 65%);
+          top: 50%; left: 50%; transform: translate(-50%,-50%);"></div>
+
+        <div class="relative flex flex-col items-center" style="gap: 20px;">
+
+          <div style="
+            width: 96px; height: 96px; border-radius: 22px;
+            background: linear-gradient(135deg, #1A76FF 0%, #0D5BCC 100%);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 60px 16px rgba(26,118,255,0.5);
+            animation: 0.6s scale-in cubic-bezier(0,0.55,0.45,1) 0.2s both;">
+            <svg viewBox="0 0 24 24" width="50" height="50" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="7" y="7" width="10" height="10" rx="1"/>
+              <path d="M7 9H5M7 12H5M7 15H5M17 9h2M17 12h2M17 15h2M9 7V5M12 7V5M15 7V5M9 19v-2M12 19v-2M15 19v-2"/>
+            </svg>
+          </div>
+
+          <ef-text style="
+            font-size: 72px; font-weight: 800; color: white;
+            letter-spacing: -2px; line-height: 1;
+            animation: 0.5s enter-up cubic-bezier(0,0.55,0.45,1) 0.5s both;">JumpCloud</ef-text>
+
+          <div style="
+            display: flex; align-items: center; gap: 18px;
+            animation: 0.5s enter-up cubic-bezier(0,0.55,0.45,1) 0.75s both;">
+            <div style="width: 60px; height: 2px; background: linear-gradient(90deg, transparent, #1A76FF);"></div>
+            <ef-text style="font-size: 26px; font-weight: 700; color: #1A76FF; letter-spacing: 0.22em;">AI GATEWAY</ef-text>
+            <div style="width: 60px; height: 2px; background: linear-gradient(90deg, #1A76FF, transparent);"></div>
+          </div>
+
+          <div style="
+            margin-top: 8px;
+            background: rgba(26,118,255,0.12); border: 1px solid rgba(26,118,255,0.4);
+            border-radius: 100px; padding: 10px 28px;
+            animation: 0.5s tag-pop cubic-bezier(0,0.55,0.45,1) 1.1s both;">
+            <ef-text style="color: #60A5FA; font-size: 17px; font-weight: 600; letter-spacing: 0.06em;">Now Available</ef-text>
+          </div>
+
+          <ef-text style="
+            font-size: 18px; color: #475569; margin-top: 8px;
+            animation: 0.5s fade-in ease-out 1.4s both;">
+            jumpcloud.com/platform/ai-gateway
+          </ef-text>
+        </div>
+      </ef-timegroup>
+
+    </ef-timegroup>
+  </body>
+</html>
